@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { createReadStream } from 'fs';
+import { createReadStream, writeFileSync } from 'fs';
+import { inspect } from 'util';
 import { join, dirname } from 'path';
 import csvParser from 'csv-parser';
 import yargs from 'yargs';
@@ -21,12 +22,15 @@ async function parseCSV() {
     .pipe(csvParser({ separator: '\n' }))
     .on('data', (data) => {
       const id = new ObjectId(Object.values(data)[0]);
-
       results.push(id);
     })
     .on('end', () => {
-      console.log({ ids: results });
-      log(chalk.green('There you go Sir!'));
+      console.log(inspect(results, { maxArrayLength: null }));
+      writeFileSync(
+        join(__dirname, '..', `${argv.file}.txt`),
+        JSON.stringify(results),
+      );
+      log(chalk.green('There you go Sir! OMG, very big array!'));
     });
 }
 
